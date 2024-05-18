@@ -1,0 +1,8 @@
+{
+  "cmake.sourceDirectory": "C:/Users/husam/Downloads/esp32-async-web-server-example/.pio/libdeps/esp32/AsyncTCP",
+  "files.associations": {
+    "*.ejs": "html",
+    "vector": "cpp",
+    "string": "cpp"
+  }
+}
