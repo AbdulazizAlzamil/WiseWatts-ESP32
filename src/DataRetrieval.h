@@ -16,5 +16,6 @@ extern int socketId;
 void retrieveSocketsData(int serialNumber);
 void retrieveBoardCommands(int serialNumber);
 void sendCurrentData(int socketId, float current);
+void sendHourlyConsumption(float consumptionValue, int socketId, int userId);
 
 #endif  // DATA_RETRIEVAL_H
