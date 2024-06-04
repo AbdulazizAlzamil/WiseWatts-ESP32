@@ -1,7 +1,7 @@
-#include "DataRetrieval.h"
+#include "api_requests.h"
 #include <Arduino.h>
 
-const char* EXPRESS_SERVER_IP = "192.168.1.109";
+const char* EXPRESS_SERVER_IP = "192.168.1.102";
 
 void retrieveSocketsData(int serialNumber) {
     WiFiClient client;
@@ -141,6 +141,7 @@ void retrieveSocketsData(int serialNumber) {
         relayPinNumbers.push_back(pinNumber);
         states.push_back(state);
         socketIds.push_back(socketId);
+        Serial.print(sensorPinNumber);
         sensorPinNumbers.push_back(sensorPinNumber);
 
         pos = nextPos != jsonArrayString.length() ? jsonArrayString.indexOf('{', nextPos + 1) : -1;
@@ -366,11 +367,6 @@ void retrieveBoardCommands(int serialNumber) {
 }
 
 
-
-
-
-
-
 void sendCurrentData(int socketId, float current) {
     WiFiClient client;
 
@@ -378,12 +374,47 @@ void sendCurrentData(int socketId, float current) {
     String payload = "{\"socket_id\":" + String(socketId) + ",\"current\":" + String(current) + "}";
 
     // Make the HTTP POST request
-    if (!client.connect("your-express-server-address", 3000)) {
+    if (!client.connect(EXPRESS_SERVER_IP, 3000)) {
         Serial.println("Connection to server failed!");
         return;
     }
 
-    client.print("POST /CurrentController/CreateCurrent HTTP/1.1\r\n");
+    client.print("POST /CurrentController/SaveCurrent HTTP/1.1\r\n");
+    client.print("Host: ");
+    client.print(EXPRESS_SERVER_IP);
+    client.print("\r\n");
+    client.print("Content-Type: application/json\r\n");
+    client.print("Content-Length: ");
+    client.print(payload.length());
+    client.print("\r\n\r\n");
+    client.print(payload);
+
+    // Read and print the response
+    while (client.connected() || client.available()) {
+        if (client.available()) {
+            String response = client.readStringUntil('\r');
+            Serial.println(response);
+        }
+    }
+
+    client.stop();
+}
+
+
+void sendHourlyConsumption(float consumptionValue, int socketId, int userId) {
+    WiFiClient client;
+
+    // Construct the JSON payload
+    String payload = "{\"con_value\":" + String(consumptionValue) + ",\"socket_id\":" + 
+            String(socketId) + ",\"user_id\":" + String(userId) + "}";
+
+    // Make the HTTP POST request
+    if (!client.connect(EXPRESS_SERVER_IP, 3000)) {
+        Serial.println("Connection to server failed!");
+        return;
+    }
+
+    client.print("POST /HourlyConsumpionController/CreateCon HTTP/1.1\r\n");
     client.print("Host: ");
     client.print(EXPRESS_SERVER_IP);
     client.print("\r\n");
